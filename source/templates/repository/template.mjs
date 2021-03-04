@@ -1,32 +1,42 @@
-//Imports
-  import common from "./../common.mjs"
-
-/** Template processor */
-  export default async function ({login, q}, {conf, data, rest, graphql, plugins, queries}, {s, pending, imports}) {
+/**Template processor */
+  export default async function({login, q}, {data, rest, graphql, queries, account}, {pending, imports}) {
     //Check arguments
       const {repo} = q
       if (!repo) {
         console.debug(`metrics/compute/${login}/${repo} > error, repo was undefined`)
-        data.errors.push({error:{message:`You must pass a "repo" argument to use this template`}})
-        return await common(...arguments)
+        data.errors.push({error:{message:"You must pass a \"repo\" argument to use this template"}})
+        return imports.plugins.core(...arguments)
       }
+      console.debug(`metrics/compute/${login}/${repo} > switching to mode ${account}`)
 
     //Retrieving single repository
       console.debug(`metrics/compute/${login}/${repo} > retrieving single repository ${repo}`)
-      const {user:{repository}} = await graphql(queries.repository({login, repo}))
+      const {[account === "bypass" ? "user" : account]:{repository}} = await graphql(queries.base.repository({login, repo, account}))
       data.user.repositories.nodes = [repository]
+      data.repo = repository
+
+    //Contributors and sponsors
+      data.repo.contributors = {totalCount:(await rest.repos.listContributors({owner:data.repo.owner.login, repo})).data.length}
+      data.repo.sponsorshipsAsMaintainer = data.user.sponsorshipsAsMaintainer
 
     //Get commit activity
       console.debug(`metrics/compute/${login}/${repo} > querying api for commits`)
       const commits = []
-      for (let page = 0; page < 100; page++) {
+      for (let page = 1; page < 100; page++) {
         console.debug(`metrics/compute/${login}/${repo} > loading page ${page}`)
-        const {data} = await rest.repos.listCommits({owner:login, repo, per_page:100, page})
-        if (!data.length) {
-          console.debug(`metrics/compute/${login}/${repo} > no more page to load`)
-          break
+        try {
+          const {data} = await rest.repos.listCommits({owner:login, repo, per_page:100, page})
+          if (!data.length) {
+            console.debug(`metrics/compute/${login}/${repo} > no more page to load`)
+            break
+          }
+          commits.push(...data)
         }
-        commits.push(...data)
+        catch (error) {
+          if (/Git Repository is empty/.test(error))
+            break
+          throw error
+        }
       }
       console.debug(`metrics/compute/${login}/${repo} > ${commits.length} commits loaded`)
 
@@ -53,8 +63,8 @@
     //Override plugins parameters
       q["projects.limit"] = 0
 
-    //Common
-      await common(...arguments)
+    //Core
+      await imports.plugins.core(...arguments)
       await Promise.all(pending)
 
     //Set repository name

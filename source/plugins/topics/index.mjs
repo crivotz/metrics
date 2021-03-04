@@ -1,29 +1,23 @@
 //Setup
-  export default async function ({login, imports, q}, {enabled = false} = {}) {
+  export default async function({login, data, imports, q, account}, {enabled = false} = {}) {
     //Plugin execution
       try {
         //Check if plugin is enabled and requirements are met
           if ((!enabled)||(!q.topics))
             return null
-        //Parameters override
-          let {"topics.sort":sort = "stars", "topics.mode":mode = "starred", "topics.limit":limit} = q
-          //Shuffle
-            const shuffle = (sort === "random")
-          //Sort method
-            sort = {starred:"created", activity:"updated", stars:"stars", random:"created"}[sort] ?? "starred"
-          //Limit
-            if (!Number.isFinite(limit))
-              limit = (mode === "mastered" ? 0 : 15)
-            limit = Math.max(0, Math.min(20, Number(limit)))
-          //Mode
-            mode = ["starred", "mastered"].includes(mode) ? mode : "starred"
+
+        //Load inputs
+          let {sort, mode, limit} = imports.metadata.plugins.topics.inputs({data, account, q})
+          const shuffle = (sort === "random")
+
         //Start puppeteer and navigate to topics
           console.debug(`metrics/compute/${login}/plugins > topics > searching starred topics`)
           let topics = []
           console.debug(`metrics/compute/${login}/plugins > topics > starting browser`)
-          const browser = await imports.puppeteer.launch({headless:true, executablePath:process.env.PUPPETEER_BROWSER_PATH, args:["--no-sandbox", "--disable-extensions", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]})
+          const browser = await imports.puppeteer.launch({headless:true, executablePath:process.env.PUPPETEER_BROWSER_PATH, args:["--no-sandbox", "--disable-extensions", "--disable-setuid-sandbox", "--disable-dev-shm-usage"], ignoreDefaultArgs:["--disable-extensions"]})
           console.debug(`metrics/compute/${login}/plugins > topics > started ${await browser.version()}`)
           const page = await browser.newPage()
+
         //Iterate through pages
           for (let i = 1; i <= 100; i++) {
             //Load page
@@ -45,20 +39,25 @@
               }
               topics.push(...starred)
           }
+
         //Close browser
           console.debug(`metrics/compute/${login}/plugins > music > closing browser`)
           await browser.close()
+
         //Shuffle topics
           if (shuffle) {
             console.debug(`metrics/compute/${login}/plugins > topics > shuffling topics`)
             topics = imports.shuffle(topics)
           }
+
         //Limit topics (starred mode)
           if ((mode === "starred")&&(limit > 0)) {
             console.debug(`metrics/compute/${login}/plugins > topics > keeping only ${limit} topics`)
             const removed = topics.splice(limit)
-            topics.push({name:`And ${removed.length} more...`, description:removed.map(({name}) => name).join(", "), icon:null})
+            if (removed.length)
+              topics.push({name:`And ${removed.length} more...`, description:removed.map(({name}) => name).join(", "), icon:null})
           }
+
         //Convert icons to base64
           console.debug(`metrics/compute/${login}/plugins > topics > loading artworks`)
           for (const topic of topics) {
@@ -69,21 +68,26 @@
             //Escape HTML description
               topic.description = imports.htmlescape(topic.description)
           }
+
         //Filter topics with icon (mastered mode)
           if (mode === "mastered") {
             console.debug(`metrics/compute/${login}/plugins > topics > filtering topics with icon`)
             topics = topics.filter(({icon}) => icon)
           }
+
         //Limit topics (mastered mode)
           if ((mode === "mastered")&&(limit > 0)) {
             console.debug(`metrics/compute/${login}/plugins > topics > keeping only ${limit} topics`)
             topics.splice(limit)
           }
+
         //Results
           return {mode, list:topics}
       }
     //Handle errors
       catch (error) {
+        if (error.error?.message)
+          throw error
         throw {error:{message:"An error occured", instance:error}}
       }
   }

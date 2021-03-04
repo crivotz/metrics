@@ -1,0 +1,32 @@
+query BaseOrganization {
+  organization(login: "$login") {
+    databaseId
+    name
+    login
+    location
+    createdAt
+    avatarUrl
+    websiteUrl
+    isVerified
+    twitterUsername
+    repositories(last: 0) {
+      totalCount
+      totalDiskUsage
+      nodes {
+        name
+      }
+    }
+    packages {
+      totalCount
+    }
+		sponsorshipsAsSponsor {
+      totalCount
+    }
+    sponsorshipsAsMaintainer {
+      totalCount
+    }
+    membersWithRole {
+      totalCount
+    }
+  }
+}

@@ -1,75 +1,110 @@
 {
-  "//":"This is an example of configuration file for web instance",
-  "//":"It is not needed when using metrics as GitHub action",
+  "//": "Example of configuration for metrics web instance",
+  "//": "====================================================================",
 
-  "token":"MY GITHUB API TOKEN",  "//":"Your own GitHub API token (required)",
-  "restricted":[],                "//":"List of authorized users, leave empty for unrestricted",
-  "cached":3600000,               "//":"Cached time for generated images, 0 to disable",
-  "maxusers":0,                   "//":"Maximum number of users, 0 for unlimited",
-  "ratelimiter":null,             "//":"Rate limiter (see express-rate-limit documentation for options)",
-  "port":3000,                    "//":"Listening port",
-  "optimize":true,                "//":"Optimize SVG image",
-  "debug":false,                  "//":"Debug mode",
-  "repositories":100,             "//":"Number of repositories to use to compute metrics",
-  "templates":{                   "//":"Template configuration",
-    "default":"classic",          "//":"Default template",
-    "enabled":[],                 "//":"Enabled templates, leave empty to enable all templates"
+  "token": "MY GITHUB API TOKEN",  "//": "GitHub Personal Token (required)",
+  "restricted": [],                "//": "Authorized users (empty to disable)",
+  "maxusers": 0,                   "//": "Maximum users, (0 to disable)",
+  "cached": 3600000,               "//": "Cache time rendered metrics (0 to disable)",
+  "ratelimiter": null,             "//": "Rate limiter (see express-rate-limit documentation)",
+  "port": 3000,                    "//": "Listening port",
+  "optimize": true,                "//": "SVG optimization",
+  "debug": false,                  "//": "Debug logs",
+  "mocked": false,                 "//": "Use mocked data instead of live APIs (use 'force' to use mocked token even if real token are defined)",
+  "repositories": 100,             "//": "Number of repositories to use",
+  "padding": ["6%", "13%"],        "//": "Image padding (default)",
+  "hosted": {
+    "by": "",                      "//": "Web instance host (displayed in footer)",
+    "link": "",                    "//": "Web instance host link (displayed in footer)"
   },
-  "plugins":{                     "//":"Additional plugins (optional)",
-    "pagespeed":{                 "//":"Pagespeed plugin",
-      "enabled":false,             "//":"Enable or disable PageSpeed metrics",
-      "token":null,               "//":"Pagespeed token (optional)"
+  "community": {
+    "templates": [],               "//": "Additional community templates to setup"
+  },
+  "templates": {
+    "default": "classic",          "//": "Default template",
+    "enabled": [],                 "//": "Enabled templates (empty to enable all)"
+  },
+  "plugins.default": false,        "//": "Default plugin state (advised to let 'false' unless in debug mode)",
+  "plugins": {                     "//": "Global plugin configuration",
+    "activity":{
+      "enabled": false,            "//": "Display recent activity"
     },
-    "traffic":{                   "//":"Traffic plugin (GitHub API token must be RW for this to work)",
-      "enabled":false,            "//":"Enable or disable repositories total page views is last two weeks"
+    "contributors":{
+      "enabled": false,            "//": "Display repository contributors"
     },
-    "lines":{                     "//":"Lines plugin",
-      "enabled":false,            "//":"Enable or disable repositories total lines added/removed"
+    "followup":{
+      "enabled": false,            "//": "Display follow-up of repositories issues and pull requests"
     },
-    "habits":{                    "//":"Habits plugin",
-      "enabled":false,            "//":"Enable or disable coding habits metrics",
-      "from":200,                 "//":"Number of activity events to base habits on (up to 1000)"
+    "gists":{
+      "enabled": false,            "//": "Display gists metrics"
     },
-    "languages":{                 "//":"Languages plugin",
-      "enabled":false,             "//":"Enable or disable most used languages metrics"
+    "habits":{
+      "enabled": false,            "//": "Display coding habits metrics"
     },
-    "followup":{                  "//":"Follow-up plugin",
-      "enabled":false,             "//":"Enable or disable owned repositories issues and pull requests metrics"
+    "introduction":{
+      "enabled": false,            "//": "Display account or repository introduction"
     },
-    "music":{                     "//":"Music plugin",
-      "enabled":false,            "//":"Enable or disable music recently played / random track from playlist",
-      "token":null,               "//":"Music provider token (may be required depending on provider)"
+    "isocalendar":{
+      "enabled": false,            "//": "Display an isometric view of your commits calendar"
     },
-    "posts":{                     "//":"Posts plugin",
-      "enabled":false,            "//":"Enable or disable recents posts"
+    "languages":{
+      "enabled": false,            "//": "Display most used languages metrics"
     },
-    "isocalendar":{               "//":"Isometric calendar plugin",
-      "enabled":false,            "//":"Enable or disable isometric calendar"
+    "licenses":{
+      "enabled": false,            "//": "Display licenses informations"
     },
-    "gists":{                     "//":"Gists plugin",
-      "enabled":false,            "//":"Enable or disable gists metrics"
+    "lines":{
+      "enabled": false,            "//": "Display lines of code metrics"
     },
-    "topics":{                    "//":"Topics plugin",
-      "enabled":false,            "//":"Enable or disable starred topics display"
+    "people":{
+      "enabled": false,            "//": "Display GitHub users from various affiliations"
     },
-    "projects":{                  "//":"Projects plugin",
-      "enabled":false,            "//":"Enable or disable personal projects display"
+    "projects":{
+      "enabled": false,            "//": "Display active projects"
     },
-    "tweets":{                    "//":"Tweets plugin",
-      "enabled":false,            "//":"Enable or disable recent tweets display",
-      "token":null,               "//":"Twitter token (required when enabled)"
+    "skyline":{
+      "enabled": false,            "//": "Display GitHub Skyline 3D calendar"
     },
-    "stars":{                     "//":"Stars plugin",
-      "enabled":false,            "//":"Enable or disable recently starred repositories display"
+    "stargazers":{
+      "enabled": false,            "//": "Display stargazers metrics"
     },
-    "stargazers":{                "//":"Stargazers plugin",
-      "enabled":false,            "//":"Enable or disable stargazers charts display"
+    "stars":{
+      "enabled": false,            "//": "Display recently starred repositories"
     },
-    "activity":{                  "//":"Activity plugin",
-      "enabled":false,            "//":"Enable or disable recent activity display"
+    "topics":{
+      "enabled": false,            "//": "Display starred topics"
     },
-    "people":{                    "//":"People plugin",
-      "enabled":false,            "//":"Enable or disable people display"
-    }
+    "traffic":{
+      "enabled": false,            "//": "Display repositories traffic metrics"
+    },
+    "anilist":{
+      "enabled": false,            "//": "Display data from your AniList account"
+    },
+    "music":{
+      "token": null,               "//":"Music provider personal token",
+      "enabled": false,            "//": "Display your music tracks"
+    },
+    "pagespeed":{
+      "token": null,               "//":"PageSpeed token",
+      "enabled": false,            "//": "Display a website Google PageSpeed metrics"
+    },
+    "posts":{
+      "enabled": false,            "//": "Display recent posts"
+    },
+    "stackoverflow":{
+      "enabled": false,            "//": "Stackoverflow metrics"
+    },
+    "tweets":{
+      "token": null,               "//":"Twitter API token",
+      "enabled": false,            "//": "Display recent tweets"
+    },
+    "wakatime":{
+      "token": null,               "//":"WakaTime API token",
+      "enabled": false,            "//": "Display WakaTime stats"
+    },
+    "nightscout":{
+      "enabled": false,            "//": "Displays Blood Glucose"
+    },
+    "//": ""
   }
 }

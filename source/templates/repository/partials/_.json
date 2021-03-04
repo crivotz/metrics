@@ -1,8 +1,13 @@
 [
   "base.header",
+  "introduction",
   "followup",
   "languages",
   "projects",
   "pagespeed",
-  "stargazers"
+  "stargazers",
+  "people",
+  "activity",
+  "contributors",
+  "licenses"
 ]
